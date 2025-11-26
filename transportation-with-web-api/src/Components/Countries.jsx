@@ -47,7 +47,7 @@ const Countries = () => {
 							 lg={{flex: '30%'}}
 							 xl={{flex: '30%'}}
 						>
-							<Card
+							<Card style={{height: '100%'}}
 								loading={loading}
 								hoverable
 								cover={
