@@ -36,4 +36,27 @@ public class ImageService(IConfiguration configuration) : IImageService
             return String.Empty;
         }
     }
+
+    public async Task<bool> DeleteImageAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return false;
+
+        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "images", name);
+
+        if (!File.Exists(imagePath))
+            return false;
+
+        try
+        {
+            File.Delete(imagePath);
+            await Task.CompletedTask;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
 }

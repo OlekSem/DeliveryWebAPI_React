@@ -3,6 +3,8 @@ using Core.Interfaces;
 using Core.Services;
 using Domain;
 using Domain.Entities.Location;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -16,6 +18,17 @@ builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString: builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddMvc(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 
 var app = builder.Build();
 

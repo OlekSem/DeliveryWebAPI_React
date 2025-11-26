@@ -1,13 +1,7 @@
 import {Button, Form, Input, Upload, message} from "antd";
 import {PlusOutlined} from '@ant-design/icons';
 import {useState} from "react";
-
-const normFile = e => {
-	if (Array.isArray(e)) {
-		return e;
-	}
-	return e?.fileList;
-};
+import APP_ENV from "../env/index.js";
 
 const toSlug = (text) => {
 	return text
@@ -23,30 +17,43 @@ const toSlug = (text) => {
 
 
 const CreateForm = () => {
+	const api = `${APP_ENV.API_BASE_URL}/api/Countries`;
 	const [form] = Form.useForm();
 	const [messageApi, contextHolder] = message.useMessage();
-	const [imageFile, setImageFile] = useState(null);
+	const [fileList, setFileList] = useState([]);
 	// const [loading, setLoading] = useState(false);
 
 	const onFinish = async (values) => {
-		if (!imageFile) {
-			console.log('Please, upload an image')
+		if (fileList.length === 0) {
+			messageApi.warning("Please upload an image");
 			return;
 		}
 		const formData = new FormData();
-		formData.append('name', values.name);
-		formData.append('code', values.code);
-		formData.append('slug', toSlug(values.name))
-		formData.append('image', imageFile);
+		formData.append('Name', values.name);
+		formData.append('Code', values.code);
+		formData.append('Slug', toSlug(values.name))
+		formData.append('Image', fileList[0].originFileObj);
 
 		try {
-			const res = await fetch('http://localhost:5055/api/Countries', {
+			const res = await fetch(api, {
 				method: 'POST',
 				body: formData
 			});
-
+			console.log(res);
 			const data = await res.json();
-			messageApi.info('Success!')
+			if (res.ok)
+				messageApi.info('Success!')
+			else {
+				if (data.errors) {
+					const fields = Object.keys(data.errors).map(key => ({
+						name: key.toLowerCase(),
+						errors: data.errors[key]
+					}));
+
+					form.setFields(fields);
+				}
+				// messageApi.warning(JSON.stringify(data.errors))
+			}
 			console.log(data);
 
 		} catch (err) {
@@ -70,23 +77,20 @@ const CreateForm = () => {
 				<Form.Item label={'Code'} required name={'code'}>
 					<Input placeholder={'Enter the code of the country'}/>
 				</Form.Item>
-				<Form.Item getValueFromEvent={normFile} label={"Image"} required name={'image'}>
+				<Form.Item label={"Image"} required name={'image'}>
 					<Upload
-						beforeUpload={() => {false}}
+						beforeUpload={() => false}
 						listType="picture-card"
-						onChange={(info) => {
-							const file = info.file.originFileObj;
-							setImageFile(file);
-						}}
+						fileList={fileList}
+						onChange={({ fileList: newList }) => setFileList(newList)}
 						maxCount={1}
 					>
-						<button
-							style={{color: 'inherit', cursor: 'inherit', border: 0, background: 'none'}}
-							type="button"
-						>
-							<PlusOutlined/>
-							<div style={{marginTop: 8}}>Upload</div>
-						</button>
+						{fileList.length === 0 && (
+							<div>
+								<PlusOutlined />
+								<div style={{ marginTop: 8 }}>Upload</div>
+							</div>
+						)}
 					</Upload>
 				</Form.Item>
 				<Form.Item>
@@ -94,7 +98,7 @@ const CreateForm = () => {
 				</Form.Item>
 			</Form>
 		</>
-	)
+)
 }
 
 export default CreateForm;
