@@ -1,15 +1,35 @@
 using System.Text.Json;
+using Domain.Entities.Identity;
 using Domain.Entities.Location;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<UserEntity, RoleEntity, int,
+    IdentityUserClaim<int>, UserRoleEntity, IdentityUserLogin<int>,
+    IdentityRoleClaim<int>, IdentityUserToken<int>>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<CityEntity> Cities { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<UserRoleEntity>()
+            .HasOne(ur => ur.User)
+            .WithMany(u => u.UserRoles)
+            .HasForeignKey(ur => ur.UserId);
+
+        builder.Entity<UserRoleEntity>()
+            .HasOne(ur => ur.Role)
+            .WithMany(u => u.UserRoles)
+            .HasForeignKey(ur => ur.RoleId);
+    }
 
 }
