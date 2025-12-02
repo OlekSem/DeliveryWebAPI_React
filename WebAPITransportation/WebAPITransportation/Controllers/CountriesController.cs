@@ -3,6 +3,7 @@ using Core.Models.Location;
 using Core.Services;
 using Domain;
 using Domain.Entities.Location;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ namespace WebAPITransportation.Controllers;
 public class CountriesController(ApplicationDbContext dbContext, ICountryService countryService) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetCountries()
     {
         var countries = await countryService.GetCountriesAsync();
@@ -20,6 +22,7 @@ public class CountriesController(ApplicationDbContext dbContext, ICountryService
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCountry([FromForm] CountryCreateModel model)
     {
         var item = await countryService.CreateCountryAsync(model);

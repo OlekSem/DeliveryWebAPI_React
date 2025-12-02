@@ -8,6 +8,8 @@ import Edit from "./Pages/Edit.jsx";
 import CreateCity from "./Pages/CreateCity.jsx";
 import CitiesPage from "./Pages/CitiesPage.jsx";
 import {GoogleOAuthProvider} from "@react-oauth/google";
+import LoginPage from "./Pages/LoginPage.jsx";
+import RegisterPage from "./Pages/RegisterPage.jsx";
 
 const {Header, Content} = Layout;
 
@@ -23,6 +25,8 @@ function App() {
 						<Route path="/edit/:id" element={<Edit/>}/>
 						<Route path="/cities" element={<CitiesPage/>}/>
 						<Route path="/create/city" element={<CreateCity/>}/>
+						<Route path="/login" element={<LoginPage/>}/>
+						<Route path="/register" element={<RegisterPage/>}/>
 					</Routes>
 				</Content>
 			</BrowserRouter>

@@ -1,13 +1,17 @@
 using System.Text;
 using Core.Interfaces;
+using Core.Models.Account;
 using Core.Services;
 using Domain;
 using Domain.Entities.Identity;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString: builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -34,6 +39,61 @@ builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+var assemblyName = typeof(LoginModel).Assembly.GetName().Name;
+
+builder.Services.AddSwaggerGen(opt =>
+{
+    var fileDoc = $"{assemblyName}.xml";
+    var filePath = Path.Combine(AppContext.BaseDirectory, fileDoc);
+    opt.IncludeXmlComments(filePath);
+
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
+    });
+
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+
+});
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -52,6 +112,40 @@ app.UseCors(policy =>
     policy.AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader());
+
+using (var scoped = app.Services.CreateScope())
+{
+    var myAppDbContext = scoped.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var roleManager = scoped.ServiceProvider.GetRequiredService<RoleManager<RoleEntity>>();
+    myAppDbContext.Database.Migrate(); //якщо ми не робили міграціії
+
+    var roles = new[] { "User", "Admin" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new RoleEntity { Name = role });
+        }
+    }
+    if (!myAppDbContext.Users.Any())
+    {
+        var userManager = scoped.ServiceProvider
+            .GetRequiredService<UserManager<UserEntity>>();
+        var adminUser = new UserEntity
+        {
+            UserName = "admin@gmail.com",
+            Email = "admin@gmail.com",
+            FirstName = "System",
+            LastName = "Administrator",
+            Image = "default.jpg"
+        };
+        var result = await userManager.CreateAsync(adminUser, "Admin123");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+    }
+}
 
 // using (var serviceScope = app.Services.CreateScope())
 // {
