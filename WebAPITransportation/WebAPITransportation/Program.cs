@@ -1,10 +1,13 @@
 using System.Text;
+using System.Text.Json;
 using Core.interfaces;
 using Core.Interfaces;
 using Core.Models.Account;
 using Core.Services;
 using Domain;
+using Domain.Entities;
 using Domain.Entities.Identity;
+using Domain.Entities.Location;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -169,4 +172,99 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(path),
     RequestPath = $"/{dirImageName}"
 });
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await context.Database.MigrateAsync();
+
+    // Seed Countries
+    if (!context.Countries.Any())
+    {
+        var countriesJsonPath = Path.Combine(app.Environment.ContentRootPath, "countries.json");
+        if (File.Exists(countriesJsonPath))
+        {
+            var countriesJson = await File.ReadAllTextAsync(countriesJsonPath);
+            var countries = JsonSerializer.Deserialize<List<CountryEntity>>(countriesJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            if (countries != null)
+            {
+                context.Countries.AddRange(countries);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"{countries.Count} countries added.");
+            }
+        }
+    }
+
+    // Seed Cities
+    if (!context.Cities.Any())
+    {
+        var citiesJsonPath = Path.Combine(app.Environment.ContentRootPath, "cities.json");
+        if (File.Exists(citiesJsonPath))
+        {
+            var citiesJson = await File.ReadAllTextAsync(citiesJsonPath);
+            var cities = JsonSerializer.Deserialize<List<CityEntity>>(citiesJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            if (cities != null)
+            {
+                context.Cities.AddRange(cities);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"{cities.Count} cities added.");
+            }
+        }
+    }
+
+    // Seed TransportationStatuses
+    if (!context.TransportationStatuses.Any())
+    {
+        var statusesJsonPath = Path.Combine(app.Environment.ContentRootPath, "transportationStatuses.json");
+        if (File.Exists(statusesJsonPath))
+        {
+            var statusesJson = await File.ReadAllTextAsync(statusesJsonPath);
+            var statuses = JsonSerializer.Deserialize<List<TransportationStatusEntity>>(statusesJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            if (statuses != null)
+            {
+                context.TransportationStatuses.AddRange(statuses);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"{statuses.Count} transportation statuses added.");
+            }
+        }
+    }
+
+    if (!context.Transportations.Any())
+    {
+        var transportationsJsonPath = Path.Combine(app.Environment.ContentRootPath, "transportations.json");
+        if (File.Exists(transportationsJsonPath))
+        {
+            var transportationsJson = await File.ReadAllTextAsync(transportationsJsonPath);
+            var transportations = JsonSerializer.Deserialize<List<TransportationEntity>>(transportationsJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (transportations != null)
+            {
+                // Make sure all DateTimes are UTC
+                foreach (var t in transportations)
+                {
+                    t.DepartureTime = DateTime.SpecifyKind(t.DepartureTime, DateTimeKind.Utc);
+                    t.ArrivalTime = DateTime.SpecifyKind(t.ArrivalTime, DateTimeKind.Utc);
+                }
+
+                context.Transportations.AddRange(transportations);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"{transportations.Count} transportations added.");
+            }
+        }
+    }
+}
+
+
 app.Run();

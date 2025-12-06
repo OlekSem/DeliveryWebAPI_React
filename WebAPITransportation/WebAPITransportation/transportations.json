@@ -1,0 +1,35 @@
+[
+  {
+    "Id":1,
+    "Code":"PS101",
+    "FromCityId":1,
+    "ToCityId":3,
+    "DepartureTime":"2025-12-07T09:00:00",
+    "ArrivalTime":"2025-12-07T12:00:00",
+    "SeatsTotal":50,
+    "SeatsAvailable":20,
+    "StatusId":1
+  },
+  {
+    "Id":2,
+    "Code":"PS102",
+    "FromCityId":3,
+    "ToCityId":1,
+    "DepartureTime":"2025-12-08T14:00:00",
+    "ArrivalTime":"2025-12-08T17:00:00",
+    "SeatsTotal":50,
+    "SeatsAvailable":50,
+    "StatusId":4
+  },
+  {
+    "Id":3,
+    "Code":"PS103",
+    "FromCityId":2,
+    "ToCityId":4,
+    "DepartureTime":"2025-12-09T08:30:00",
+    "ArrivalTime":"2025-12-09T11:00:00",
+    "SeatsTotal":30,
+    "SeatsAvailable":0,
+    "StatusId":5
+  }
+]
