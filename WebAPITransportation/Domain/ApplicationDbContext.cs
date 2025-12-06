@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Entities.Location;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +17,8 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity, RoleEntity, in
     }
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<CityEntity> Cities { get; set; }
+    public DbSet<TransportationStatusEntity> TransportationStatuses { get; set; }
+    public DbSet<TransportationEntity> Transportations { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +33,16 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity, RoleEntity, in
             .HasOne(ur => ur.Role)
             .WithMany(u => u.UserRoles)
             .HasForeignKey(ur => ur.RoleId);
+        
+        builder.Entity<CityEntity>()
+            .HasMany(c => c.Departures)
+            .WithOne(t => t.FromCity)
+            .HasForeignKey(t => t.FromCityId);
+
+        builder.Entity<CityEntity>()
+            .HasMany(c => c.Arrivals)
+            .WithOne(t => t.ToCity)
+            .HasForeignKey(t => t.ToCityId);
     }
 
 }

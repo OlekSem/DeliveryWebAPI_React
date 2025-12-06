@@ -49,6 +49,9 @@ const CreateCityForm = () => {
 			console.log(Object.fromEntries(formData.entries()))
 			const res = await fetch(api, {
 				method: 'POST',
+				headers: {
+					Authorization: "Bearer " + localStorage.getItem('token')
+				},
 				body: formData
 			});
 			console.log(res);

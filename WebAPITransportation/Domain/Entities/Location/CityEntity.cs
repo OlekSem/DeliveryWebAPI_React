@@ -21,4 +21,6 @@ public class CityEntity : BaseEntity<int>
 
     public CountryEntity Country { get; set; } = null!;
 
+    public ICollection<TransportationEntity> Arrivals { get; set; } = null!;
+    public ICollection<TransportationEntity> Departures { get; set; } = null!;
 }

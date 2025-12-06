@@ -39,6 +39,7 @@ obj/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+appsettings.Development.json
 
 # ASP.NET publish output
 wwwroot/

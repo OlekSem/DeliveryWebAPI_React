@@ -1,4 +1,5 @@
 using System.Text;
+using Core.interfaces;
 using Core.Interfaces;
 using Core.Models.Account;
 using Core.Services;
@@ -19,12 +20,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddCors();
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString: builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -60,6 +64,7 @@ builder.Services.AddAuthentication(options =>
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
+builder.Services.AddAuthorization();
 
 var assemblyName = typeof(LoginModel).Assembly.GetName().Name;
 
@@ -147,32 +152,12 @@ using (var scoped = app.Services.CreateScope())
     }
 }
 
-// using (var serviceScope = app.Services.CreateScope())
-// {
-//     var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//     context.Database.Migrate();
-//     if (!context.Countries.Any())
-//     {
-//         using (StreamReader r = new StreamReader("./countries.json"))
-//         {
-//             string json = r.ReadToEnd();
-//             List<CountryEntity> items = JsonSerializer.Deserialize<List<CountryEntity>>(json);
-//             foreach (CountryEntity item in items)
-//             {
-//                 Console.WriteLine(JsonSerializer.Serialize(item));
-//             }
-//             context.Countries.AddRange(items);
-//             context.SaveChanges();
-//         }
-//     }
-// }
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseAuthentication();
-app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI();
+app.MapControllers();
+
 var dirImageName = builder.Configuration.GetValue<string>("DirImageName") ?? "duplo";
 
 // Console.WriteLine("Image dir {0}", dirImageName);

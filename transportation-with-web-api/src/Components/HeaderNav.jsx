@@ -56,6 +56,10 @@ const HeaderNav = () => {
 					{
 						key: "/register",
 						label: <Link to="/register">Register</Link>
+					},
+					{
+						key: "/profile",
+						label: <Link to="/profile">Profile</Link>
 					}
 				]}
 			/>

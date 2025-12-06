@@ -10,6 +10,7 @@ import CitiesPage from "./Pages/CitiesPage.jsx";
 import {GoogleOAuthProvider} from "@react-oauth/google";
 import LoginPage from "./Pages/LoginPage.jsx";
 import RegisterPage from "./Pages/RegisterPage.jsx";
+import UserProfilePage from "./Pages/UserProfilePage.jsx";
 
 const {Header, Content} = Layout;
 
@@ -27,6 +28,7 @@ function App() {
 						<Route path="/create/city" element={<CreateCity/>}/>
 						<Route path="/login" element={<LoginPage/>}/>
 						<Route path="/register" element={<RegisterPage/>}/>
+						<Route path="/profile" element={<UserProfilePage/>}/>
 					</Routes>
 				</Content>
 			</BrowserRouter>
