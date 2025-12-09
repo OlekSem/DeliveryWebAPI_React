@@ -1,5 +1,5 @@
 import {Card, Row, Col} from "antd";
-import { EditOutlined, EllipsisOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {useEffect, useState} from "react";
 import APP_ENV from "../env/index.js";
 import {Link} from "react-router-dom";
@@ -53,7 +53,7 @@ const Countries = () => {
 								cover={
 									<img draggable={false}
 										 alt={c.name}
-										 src={APP_ENV.API_BASE_URL + "/images/" + c.image}
+										 src={APP_ENV.API_BASE_URL + '/images/' + c.image}
 									/>
 								}
 								actions={[

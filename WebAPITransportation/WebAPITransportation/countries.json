@@ -1,5 +1,5 @@
 [
-  {"Id":1,"Name":"Germany","Code":"DE","Slug":"germany","Image":"images/germany.jpg"},
-  {"Id":2,"Name":"France","Code":"FR","Slug":"france","Image":"images/france.jpg"},
-  {"Id":3,"Name":"Italy","Code":"IT","Slug":"italy","Image":"images/italy.jpg"}
+  {"Name":"Germany","Code":"DE","Slug":"germany","Image":"germany.jpg"},
+  {"Name":"France","Code":"FR","Slug":"france","Image":"france.jpg"},
+  {"Name":"Italy","Code":"IT","Slug":"italy","Image":"italy.jpg"}
 ]

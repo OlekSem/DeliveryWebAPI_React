@@ -31,6 +31,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISMTPService, SMTPService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString: builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -114,13 +115,20 @@ builder.Services.AddMvc(options =>
     options.Filters.Add<ValidationFilter>();
 });
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowTwoDomains", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", 
+                "https://domain2.com")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // якщо потрібно передавати cookies/token
+    });
+});
+
 var app = builder.Build();
-
-app.UseCors(policy =>
-    policy.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader());
-
 using (var scoped = app.Services.CreateScope())
 {
     var myAppDbContext = scoped.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -160,6 +168,7 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
+app.UseCors("AllowTwoDomains");
 
 var dirImageName = builder.Configuration.GetValue<string>("DirImageName") ?? "duplo";
 
@@ -264,7 +273,10 @@ using (var serviceScope = app.Services.CreateScope())
             }
         }
     }
-}
 
+    var emailService = serviceScope.ServiceProvider.GetRequiredService<ISMTPService>();
+    emailService.SendEmail(builder.Configuration.GetValue<string>("UserEmail"), "Transportation Project",
+        "Your website has been started!");
+}
 
 app.Run();

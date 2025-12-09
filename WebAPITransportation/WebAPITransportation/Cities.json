@@ -1,8 +1,8 @@
 [
-  {"Id":1,"Name":"Berlin","Slug":"berlin","image":"images/berlin.jpg","Description":"Capital of Germany","CountryId":1},
-  {"Id":2,"Name":"Munich","Slug":"munich","image":"images/munich.jpg","Description":"City in Bavaria, Germany","CountryId":1},
-  {"Id":3,"Name":"Paris","Slug":"paris","image":"images/paris.jpg","Description":"Capital of France","CountryId":2},
-  {"Id":4,"Name":"Lyon","Slug":"lyon","image":"images/lyon.jpg","Description":"City in France","CountryId":2},
-  {"Id":5,"Name":"Rome","Slug":"rome","image":"images/rome.jpg","Description":"Capital of Italy","CountryId":3},
-  {"Id":6,"Name":"Milan","Slug":"milan","image":"images/milan.jpg","Description":"City in northern Italy","CountryId":3}
+  {"Name":"Berlin","Slug":"berlin","image":"berlin.jpg","Description":"Capital of Germany","CountryId":1},
+  {"Name":"Munich","Slug":"munich","image":"munich.jpg","Description":"City in Bavaria, Germany","CountryId":1},
+  {"Name":"Paris","Slug":"paris","image":"paris.jpg","Description":"Capital of France","CountryId":2},
+  {"Name":"Lyon","Slug":"lyon","image":"lyon.jpg","Description":"City in France","CountryId":2},
+  {"Name":"Rome","Slug":"rome","image":"rome.jpg","Description":"Capital of Italy","CountryId":3},
+  {"Name":"Milan","Slug":"milan","image":"milan.jpg","Description":"City in northern Italy","CountryId":3}
 ]
