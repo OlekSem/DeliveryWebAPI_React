@@ -121,7 +121,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowTwoDomains", policy =>
     {
         policy.WithOrigins("http://localhost:5173", 
-                "https://domain2.com")
+                "http://transportation-react.somee.com",
+                "http://www.transportation-react.somee.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); // якщо потрібно передавати cookies/token
@@ -153,7 +154,7 @@ using (var scoped = app.Services.CreateScope())
             Email = "admin@gmail.com",
             FirstName = "System",
             LastName = "Administrator",
-            Image = "default.jpg"
+            Image = "default.webp"
         };
         var result = await userManager.CreateAsync(adminUser, "Admin123");
         if (result.Succeeded)

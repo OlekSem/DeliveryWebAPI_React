@@ -16,7 +16,7 @@ public class CountryCreateValidator : AbstractValidator<CountryCreateModel>
             {
                 RuleFor(x => x.Name)
                     .MustAsync(async (name, cancellation) =>
-                        !await db.Countries.AnyAsync(c => c.Name.ToLower() == name.ToLower().Trim(), cancellation))
+                        !await db.Countries.AnyAsync(c => c.Name.ToLower() == name.ToLower().Trim() && c.IsDeleted == false, cancellation))
                     .WithMessage("A country with that name already exists.");
             });
 
@@ -27,7 +27,7 @@ public class CountryCreateValidator : AbstractValidator<CountryCreateModel>
             {
                 RuleFor(x => x.Code)
                     .MustAsync(async (code, cancellation) =>
-                        !await db.Countries.AnyAsync(c => c.Code.ToLower() == code.ToLower().Trim(), cancellation))
+                        !await db.Countries.AnyAsync(c => c.Code.ToLower() == code.ToLower().Trim() && c.IsDeleted == false, cancellation))
                     .WithMessage("A country with that code already exists.");
             });
 
@@ -38,7 +38,7 @@ public class CountryCreateValidator : AbstractValidator<CountryCreateModel>
             {
                 RuleFor(x => x.Slug)
                     .MustAsync(async (slug, cancellation) =>
-                        !await db.Countries.AnyAsync(c => c.Slug.ToLower() == slug.ToLower().Trim(), cancellation))
+                        !await db.Countries.AnyAsync(c => c.Slug.ToLower() == slug.ToLower().Trim() && c.IsDeleted == false, cancellation))
                     .WithMessage("A country with that slug already exists.");
             });
 

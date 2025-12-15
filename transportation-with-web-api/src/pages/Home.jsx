@@ -1,4 +1,4 @@
-import Countries from "../Components/Countries.jsx";
+import Countries from "../components/Countries.jsx";
 
 const Home = () => {
 	return (

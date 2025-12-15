@@ -1,4 +1,4 @@
-import CreateCityForm from "../Components/CreateCityForm.jsx";
+import CreateCityForm from "../components/CreateCityForm.jsx";
 
 const CreateCity = () => {
 	return(

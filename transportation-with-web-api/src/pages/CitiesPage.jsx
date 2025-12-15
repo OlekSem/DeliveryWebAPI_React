@@ -1,4 +1,4 @@
-import Cities from "../Components/Cities.jsx";
+import Cities from "../components/Cities.jsx";
 
 const CitiesPage = () => {
 	return (

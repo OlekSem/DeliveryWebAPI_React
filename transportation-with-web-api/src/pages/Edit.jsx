@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import EditCountry from "../Components/EditCountry.jsx";
+import EditCountry from "../components/EditCountry.jsx";
 
 const Edit = () => {
 	const {id} = useParams();
