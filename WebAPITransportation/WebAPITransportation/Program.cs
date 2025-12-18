@@ -4,6 +4,7 @@ using Core.interfaces;
 using Core.Interfaces;
 using Core.Models.Account;
 using Core.Services;
+using Core.SMTP;
 using Domain;
 using Domain.Entities;
 using Domain.Entities.Identity;
@@ -120,7 +121,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowTwoDomains", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", 
+        policy.WithOrigins("http://localhost:5174", 
                 "http://transportation-react.somee.com",
                 "http://www.transportation-react.somee.com")
             .AllowAnyHeader()
@@ -150,8 +151,8 @@ using (var scoped = app.Services.CreateScope())
             .GetRequiredService<UserManager<UserEntity>>();
         var adminUser = new UserEntity
         {
-            UserName = "admin@gmail.com",
-            Email = "admin@gmail.com",
+            UserName = "sasha.sos.06032009@gmail.com",
+            Email = "sasha.sos.06032009@gmail.com",
             FirstName = "System",
             LastName = "Administrator",
             Image = "default.webp"
@@ -276,8 +277,12 @@ using (var serviceScope = app.Services.CreateScope())
     }
 
     var emailService = serviceScope.ServiceProvider.GetRequiredService<ISMTPService>();
-    emailService.SendEmail(builder.Configuration.GetValue<string>("UserEmail"), "Transportation Project",
-        "Your website has been started!");
+    EmailMessage message = new EmailMessage
+    {
+        Subject = "Transportation Project",
+        Body = "Your website has been started!",
+        To = builder.Configuration.GetValue<string>("UserEmail"),
+    };
 }
 
 app.Run();

@@ -1,6 +1,8 @@
+using Core.SMTP;
+
 namespace Core.Interfaces;
 
 public interface ISMTPService
 {
-    public bool SendEmail(string email, string subject, string text);
+    public bool SendEmail(EmailMessage message);
 }

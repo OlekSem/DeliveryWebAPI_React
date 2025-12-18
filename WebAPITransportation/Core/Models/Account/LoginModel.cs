@@ -5,7 +5,7 @@ public class LoginModel
     /// <summary>
     /// Електронна пошта користувача
     /// </summary>
-    /// <example>admin@gmail.com</example>
+    /// <example>sasha.sos.06032009@gmail.com</example>
     public string Email { get; set; } = null!;
     /// <summary>
     /// Пароль користувача

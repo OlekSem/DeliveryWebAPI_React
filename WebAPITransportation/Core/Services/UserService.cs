@@ -3,13 +3,20 @@ using AutoMapper.QueryableExtensions;
 using Core.interfaces;
 using Core.Interfaces;
 using Core.Models.Account;
+using Core.SMTP;
 using Domain;
+using Domain.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Services;
 
 public class UserService(IAuthService authService, 
+    ISMTPService smtpService,
+    UserManager<UserEntity> userManager,
     ApplicationDbContext transferContext,
+    IConfiguration configuration,
     IMapper mapper) : IUserService
 {
     public async Task<UserProfileModel> GetUserProfileAsync()
@@ -22,5 +29,47 @@ public class UserService(IAuthService authService,
             .SingleOrDefaultAsync(u => u.Id == userId!);
 
         return profile!;
+    }
+    
+    public async Task<bool> ResetPasswordAsync(ResetPasswordModel model)
+    {
+        var user = await userManager.FindByEmailAsync(model.Email);
+
+        if (user != null)
+        {
+            var result = await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                return false;
+            }
+        }
+        else
+            return false;
+
+        return true;
+    }
+    
+    public async Task<bool> ForgotPasswordAsync(ForgotPasswordModel model)
+    {
+        var user = await userManager.FindByEmailAsync(model.Email);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        string token = await userManager.GeneratePasswordResetTokenAsync(user);
+        var resetLink = $"{configuration["ClientUrl"]}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(model.Email)}";
+
+        var emailModel = new EmailMessage
+        {
+            To = model.Email,
+            Subject = "Password Reset",
+            Body = $"<p>Click the link below to reset your password:</p><a href='{resetLink}'>Reset Password</a>"
+        };
+
+        var result = smtpService.SendEmail(emailModel);
+
+        return result;
     }
 }
