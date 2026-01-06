@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Core.interfaces;
 using Core.Interfaces;
 using Core.Models.Account;
+using Core.Models.Search;
 using Core.SMTP;
 using Domain;
 using Domain.Entities.Identity;
@@ -70,6 +71,53 @@ public class UserService(IAuthService authService,
 
         var result = smtpService.SendEmail(emailModel);
 
+        return result;
+    }
+    public async Task<SearchResult<UserItemModel>> SearchAsync(UserSearchModel model)
+    {
+        var query = transferContext.Users.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(model.Name))
+        {
+            string nameFilter = model.Name.Trim().ToLower();
+            query = query.Where(u =>
+                (u.FirstName + " " + u.LastName).ToLower().Contains(nameFilter)
+                || u.FirstName.ToLower().Contains(nameFilter)
+                || u.LastName.ToLower().Contains(nameFilter));
+        }
+
+        if (model?.StartDate != null)
+        {
+            query = query.Where(u => u.DateCreated >= model.StartDate);
+        }
+        if (model?.EndDate != null)
+        {
+            query = query.Where(u => u.DateCreated <= model.EndDate);
+        }
+        //кількіть загальних елементів для пагінації
+        var totalItems = await query.CountAsync();
+        //кількість записів на сторінку
+        var safeItemsPerPage = model.ItemPerPage < 1 ? 10 : model.ItemPerPage;
+        //Кількість записву ділене на кількість сторінок і округлення в більшу сторону
+        var totalPages = (int)Math.Ceiling((double)totalItems / safeItemsPerPage);
+        //Безпечна поточна сторінка
+        var safePage = Math.Min(Math.Max(1, model.Page), Math.Max(1, totalPages));
+        var users = await query
+            .OrderBy(u => u.Id)
+            .Skip((safePage - 1) * safeItemsPerPage) //пропускаємо елементи для попередніх сторінок
+            .Take(safeItemsPerPage) //беремо елементи для поточної сторінки
+            .ProjectTo<UserItemModel>(mapper.ConfigurationProvider)
+            .ToListAsync();
+        var result = new SearchResult<UserItemModel>
+        {
+            Items = users,
+            Pagination = new PaginationModel
+            {
+                TotalCount = totalItems,
+                TotalPages = totalPages,
+                ItemsPerPage = safeItemsPerPage,
+                CurrentPage = safePage
+            }
+        };
         return result;
     }
 }

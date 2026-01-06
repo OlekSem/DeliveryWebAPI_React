@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Bogus;
 using Core.interfaces;
 using Core.Interfaces;
 using Core.Models.Account;
@@ -35,7 +36,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISMTPService, SMTPService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString: builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString: builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
     {
@@ -95,33 +97,27 @@ builder.Services.AddSwaggerGen(opt =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
-            new string[]{}
+            new string[] { }
         }
     });
-
 });
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
+builder.Services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddMvc(options =>
-{
-    options.Filters.Add<ValidationFilter>();
-});
+builder.Services.AddMvc(options => { options.Filters.Add<ValidationFilter>(); });
 
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowTwoDomains", policy =>
     {
-        policy.WithOrigins("http://localhost:5174", 
+        policy.WithOrigins("http://localhost:5174",
+                "http://localhost:5173",
                 "http://transportation-react.somee.com",
                 "http://www.transportation-react.somee.com")
             .AllowAnyHeader()
@@ -145,6 +141,7 @@ using (var scoped = app.Services.CreateScope())
             await roleManager.CreateAsync(new RoleEntity { Name = role });
         }
     }
+
     if (!myAppDbContext.Users.Any())
     {
         var userManager = scoped.ServiceProvider
@@ -161,6 +158,27 @@ using (var scoped = app.Services.CreateScope())
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+        int countUsers = 100;
+        var faker = new Faker("uk");
+        for (int i = 0; i < countUsers; i++)
+        {
+            var firstName = faker.Name.FirstName();
+            var lastName = faker.Name.LastName();
+            var email = faker.Internet.Email(firstName, lastName);
+            var user = new UserEntity
+            {
+                UserName = email,
+                Email = email,
+                FirstName = firstName,
+                LastName = lastName,
+                Image = "default.jpg"
+            };
+            var userResult = await userManager.CreateAsync(user, "User123");
+            if (userResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "User");
+            }
         }
     }
 }
@@ -188,6 +206,7 @@ using (var serviceScope = app.Services.CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Database.MigrateAsync();
+    
 
     // Seed Countries
     if (!context.Countries.Any())
@@ -236,10 +255,11 @@ using (var serviceScope = app.Services.CreateScope())
         if (File.Exists(statusesJsonPath))
         {
             var statusesJson = await File.ReadAllTextAsync(statusesJsonPath);
-            var statuses = JsonSerializer.Deserialize<List<TransportationStatusEntity>>(statusesJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var statuses = JsonSerializer.Deserialize<List<TransportationStatusEntity>>(statusesJson,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
             if (statuses != null)
             {
                 context.TransportationStatuses.AddRange(statuses);
@@ -255,10 +275,11 @@ using (var serviceScope = app.Services.CreateScope())
         if (File.Exists(transportationsJsonPath))
         {
             var transportationsJson = await File.ReadAllTextAsync(transportationsJsonPath);
-            var transportations = JsonSerializer.Deserialize<List<TransportationEntity>>(transportationsJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var transportations = JsonSerializer.Deserialize<List<TransportationEntity>>(transportationsJson,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
             if (transportations != null)
             {
@@ -276,13 +297,13 @@ using (var serviceScope = app.Services.CreateScope())
         }
     }
 
-    var emailService = serviceScope.ServiceProvider.GetRequiredService<ISMTPService>();
-    EmailMessage message = new EmailMessage
-    {
-        Subject = "Transportation Project",
-        Body = "Your website has been started!",
-        To = builder.Configuration.GetValue<string>("UserEmail"),
-    };
+    // var emailService = serviceScope.ServiceProvider.GetRequiredService<ISMTPService>();
+    // EmailMessage message = new EmailMessage
+    // {
+    //     Subject = "Transportation Project",
+    //     Body = "Your website has been started!",
+    //     To = builder.Configuration.GetValue<string>("UserEmail"),
+    // };
 }
 
 app.Run();

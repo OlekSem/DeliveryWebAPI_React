@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using Core.Interfaces;
 using Core.Models.Account;
@@ -92,5 +93,23 @@ public class AccountController(
             });
         }
         return Ok();
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Search([FromQuery] UserSearchModel model)
+    {
+        //Обчислення часу виконання
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var result = await userService.SearchAsync(model);
+        stopwatch.Stop();
+        // Get the elapsed time as a TimeSpan value.
+        TimeSpan ts = stopwatch.Elapsed;
+        // Format and display the TimeSpan value.
+        string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            ts.Hours, ts.Minutes, ts.Seconds,
+            ts.Milliseconds / 10);
+        Console.WriteLine("-----------Elapsed Time------------: " + elapsedTime);
+        return Ok(result);
     }
 }
