@@ -27,7 +27,8 @@ public class ImageService(IConfiguration configuration) : IImageService
                 });
             });
             var dirImageName = configuration["DirImageName"] ?? "images";
-            var path = Path.Combine(Directory.GetCurrentDirectory(), dirImageName, fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), 
+                dirImageName, fileName);
             await image.SaveAsync(path, new WebpEncoder());
             return fileName;
         }
@@ -36,27 +37,50 @@ public class ImageService(IConfiguration configuration) : IImageService
             return String.Empty;
         }
     }
-
-    public async Task<bool> DeleteImageAsync(string name)
+    public async Task<string> SaveImageAsync(byte[] bytes)
     {
-        if (string.IsNullOrEmpty(name))
-            return false;
-
-        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "images", name);
-
-        if (!File.Exists(imagePath))
-            return false;
-
         try
         {
-            File.Delete(imagePath);
-            await Task.CompletedTask;
+            var fileName = Path.GetRandomFileName() + ".webp";
+            using var image = Image.Load(bytes);
+            image.Mutate(imgc =>
+            {
+                imgc.Resize(new ResizeOptions
+                {
+                    Size = new Size(600, 600),
+                    Mode = ResizeMode.Max
+                });
+            });
+            var dirImageName = configuration["DirImageName"] ?? "images";
+            var path = Path.Combine(Directory.GetCurrentDirectory(), dirImageName, fileName);
+            await image.SaveAsync(path, new WebpEncoder());
 
-            return true;
+            return fileName;
         }
-        catch (Exception ex)
+        catch
         {
-            return false;
+            return string.Empty;
         }
+    }
+
+    public async Task<bool> DeleteImageAsync(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) return false;
+
+        var dirImageName = configuration["DirImageName"] ?? "images";
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), dirImageName, fileName);
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+
+        return true;
+    }
+
+    public async Task<string> SaveImageFromUrlAsync(string imageUrl)
+    {
+        using var httpClient = new HttpClient();
+        var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+        return await SaveImageAsync(imageBytes);
     }
 }

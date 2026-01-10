@@ -27,6 +27,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IImageService, ImageService>();
@@ -34,6 +35,8 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISMTPService, SMTPService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ITransportationService, TransportationService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -118,8 +121,11 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5174",
                 "http://localhost:5173",
+                "http://localhost:4173",
                 "http://transportation-react.somee.com",
-                "http://www.transportation-react.somee.com")
+                "http://www.transportation-react.somee.com",
+                "http://transferweb.somee.com",
+                "http://www.transferweb.somee.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); // якщо потрібно передавати cookies/token

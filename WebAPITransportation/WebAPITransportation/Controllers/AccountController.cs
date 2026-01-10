@@ -15,6 +15,7 @@ public class AccountController(
     UserManager<UserEntity> userManager,
     IJwtTokenService jwtTokenService,
     IMapper mapper,
+    IAccountService accountService,
     IImageService imageService,
     IUserService userService) : ControllerBase
 {
@@ -54,6 +55,25 @@ public class AccountController(
 
         var token = await jwtTokenService.CreateAsync(user);
         return Ok(new { token });
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestModel model)
+    {
+        var result = await accountService.LoginByGoogle(model.IdToken);
+        if (string.IsNullOrEmpty(result))
+        {
+            return BadRequest(new
+            {
+                Status = 400,
+                IsValid = false,
+                Errors = new { Email = "Помилка реєстрації" }
+            });
+        }
+        return Ok(new
+        {
+            Token = result
+        });
     }
 
     [HttpGet]
