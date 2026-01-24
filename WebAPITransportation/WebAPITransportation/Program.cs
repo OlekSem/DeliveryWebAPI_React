@@ -117,18 +117,25 @@ builder.Services.AddMvc(options => { options.Filters.Add<ValidationFilter>(); })
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowTwoDomains", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5174",
+        policy
+            .WithOrigins(
                 "http://localhost:5173",
+                "http://localhost:5174",
                 "http://localhost:4173",
+
+                "http://localubuntu",
+                "http://www.localubuntu",
+
                 "http://transportation-react.somee.com",
                 "http://www.transportation-react.somee.com",
                 "http://transferweb.somee.com",
-                "http://www.transferweb.somee.com")
+                "http://www.transferweb.somee.com"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); // якщо потрібно передавати cookies/token
+            .AllowCredentials();
     });
 });
 
@@ -190,11 +197,17 @@ using (var scoped = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseRouting();
+
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
-app.UseCors("AllowTwoDomains");
 
 var dirImageName = builder.Configuration.GetValue<string>("DirImageName") ?? "duplo";
 
