@@ -1,30 +1,25 @@
-# Виберіть базовий образ
-FROM node:18 AS build
+# ---------- Build stage ----------
+FROM node:20-alpine AS build
 
-# Встановіть робочий каталог
 WORKDIR /app
 
-# Скопіюйте package.json і package-lock.json
 COPY package*.json ./
+RUN npm ci
 
-# Встановіть залежності
-RUN npm install
-
-# Скопіюйте весь код
 COPY . .
-
-# Побудуйте проект
 RUN npm run build
 
-# Виберіть образ для продакшн
-FROM nginx
-# Скопіюйте побудовані файли в каталог для сервера
-COPY --from=build /app/dist /usr/share/nginx/html
-# Скопіюйте nginx налаштування в каталог для сервера
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx/nginx.conf /etc/nginx/conf.d
-# Відкрийте порт для сервера
-EXPOSE 80
+# ---------- Runtime stage ----------
+FROM nginx:alpine
 
-# Запустіть Nginx
+# Remove default config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy custom nginx server config
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built frontend
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
