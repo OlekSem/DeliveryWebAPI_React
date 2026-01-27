@@ -24,7 +24,7 @@ services:
       ConnectionStrings__DefaultConnection: Host=192.168.64.3;Database=postgres;Port=5022;Username=postgres;Password=mysecretpassword
     
     ports:
-      - "5898:8080"
+      - "5898:5000"
     depends_on:
       - db
 
