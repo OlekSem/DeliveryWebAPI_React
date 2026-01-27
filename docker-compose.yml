@@ -21,7 +21,7 @@ services:
       - /data/transfer/images:/app/images
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Host=db;Database=postgres;Port:5022;Username= postgres;Password= mysecretpassword
+      ConnectionStrings__DefaultConnection: Host=db;Database=postgres;Port=5022;Username= postgres;Password= mysecretpassword
     
     ports:
       - "5898:8080"
