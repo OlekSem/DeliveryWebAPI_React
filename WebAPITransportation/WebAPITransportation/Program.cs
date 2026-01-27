@@ -224,7 +224,7 @@ app.UseStaticFiles(new StaticFileOptions
 using (var serviceScope = app.Services.CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.MigrateAsync();
+    context.Database.Migrate();
     
 
     // Seed Countries
