@@ -125,14 +125,16 @@ builder.Services.AddCors(options =>
                 "http://localhost:5174",
                 "http://localhost:4173",
 
-                "http://localubuntu",
-                "http://www.localubuntu",
-
                 "http://transportation-react.somee.com",
                 "http://www.transportation-react.somee.com",
                 "http://transferweb.somee.com",
                 "http://www.transferweb.somee.com"
             )
+            .SetIsOriginAllowed(origin =>
+            {
+                // Allow all http origins for localubuntu regardless of port
+                return origin.StartsWith("http://localubuntu");
+            })
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
