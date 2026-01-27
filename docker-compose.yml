@@ -12,7 +12,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - /data/postgresql/data:/var/lib/postgresql
+      - /data/transfer/postgres:/var/lib/postgresql
 
   server:
     build: ./WebAPITransportation
