@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251206140146_tblTransportation_statuses")]
-    partial class tblTransportation_statuses
+    [Migration("20260128091729_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,24 @@ namespace Domain.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.CartEntity", b =>
+                {
+                    b.Property<int>("TransportationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<short>("CountTickets")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("TransportationId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("tblCarts");
+                });
 
             modelBuilder.Entity("Domain.Entities.Identity.RoleEntity", b =>
                 {
@@ -69,6 +87,9 @@ namespace Domain.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -77,15 +98,12 @@ namespace Domain.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
@@ -387,6 +405,25 @@ namespace Domain.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.CartEntity", b =>
+                {
+                    b.HasOne("Domain.Entities.TransportationEntity", "Transportation")
+                        .WithMany("Carts")
+                        .HasForeignKey("TransportationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Identity.UserEntity", "User")
+                        .WithMany("Carts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transportation");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.UserRoleEntity", b =>
                 {
                     b.HasOne("Domain.Entities.Identity.RoleEntity", "Role")
@@ -487,6 +524,8 @@ namespace Domain.Migrations
 
             modelBuilder.Entity("Domain.Entities.Identity.UserEntity", b =>
                 {
+                    b.Navigation("Carts");
+
                     b.Navigation("UserRoles");
                 });
 
@@ -500,6 +539,11 @@ namespace Domain.Migrations
             modelBuilder.Entity("Domain.Entities.Location.CountryEntity", b =>
                 {
                     b.Navigation("Cities");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransportationEntity", b =>
+                {
+                    b.Navigation("Carts");
                 });
 
             modelBuilder.Entity("Domain.Entities.TransportationStatusEntity", b =>
