@@ -15,8 +15,6 @@ services:
   server:
     build: ./WebAPITransportation
     container_name: server
-    volumes:
-      - /data/transfer/images:/app/images
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: >
@@ -24,10 +22,11 @@ services:
         Database=${POSTGRES_DB};
         Username=${POSTGRES_USER};
         Password=${POSTGRES_PASSWORD}
-    ports:
-      - "5898:5000"
     volumes:
       - /data/transfer/images:/app/images
+    ports:
+      - "5898:5000"
+   
     depends_on:
       - db
 
