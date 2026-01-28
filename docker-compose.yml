@@ -13,6 +13,12 @@ services:
       - "5432:5432"
     volumes:
       - /data/transfer/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   server:
     build: ./WebAPITransportation
@@ -31,8 +37,8 @@ services:
       - "5898:5000"
    
     depends_on:
-      - db
-    entrypoint: ["/app/wait-for-postgres.sh", "db", "dotnet", "WebAPITransportation.dll"]
+      db:
+	condition: service_healthy
 
   front:
     build: 
