@@ -26,11 +26,13 @@ services:
         Password=${POSTGRES_PASSWORD}
     volumes:
       - /data/transfer/images:/app/images
+      - ./WebAPITransportation/wait-for-postgres.sh:/app/wait-for-postgres.sh
     ports:
       - "5898:5000"
    
     depends_on:
       - db
+    entrypoint: ["/app/wait-for-postgres.sh", "db", "dotnet", "WebAPITransportation.dll"]
 
   front:
     build: 
