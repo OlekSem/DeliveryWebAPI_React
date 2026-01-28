@@ -2,11 +2,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /source
 
-COPY ["WebAPITransportation/WebAPITransportation.csproj", "WebAPITransportation/"]
-RUN dotnet restore "WebAPITransportation/WebAPITransportation.csproj"
+COPY ["WebAPITransportation.csproj", "./"]
+RUN dotnet restore "WebAPITransportation.csproj"
 
 COPY . .
-WORKDIR /source/WebAPITransportation
 RUN dotnet publish -c Release -o /app
 
 # ---------- Runtime ----------

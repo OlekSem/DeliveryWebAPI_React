@@ -5,32 +5,37 @@ services:
     image: postgres:18.1
     container_name: db
     restart: always
-    ports:
-      - "5022:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - /data/transfer/postgres:/var/lib/postgresql
+      - /data/transfer/postgres:/var/lib/postgresql/data
 
   server:
     build: ./WebAPITransportation
-    container_name: transfer_api
+    container_name: server
     volumes:
       - /data/transfer/images:/app/images
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Host=192.168.64.3;Database=postgres;Port=5022;Username=postgres;Password=mysecretpassword
-    
+      ConnectionStrings__DefaultConnection: >
+        Host=db;
+        Database=${POSTGRES_DB};
+        Username=${POSTGRES_USER};
+        Password=${POSTGRES_PASSWORD}
     ports:
       - "5898:5000"
+    volumes:
+      - /data/transfer/images:/app/images
     depends_on:
       - db
 
   front:
     build: 
       context: ./transportation-reactts
+      args:
+        VITE_API_BASE_URL: ${API_URL}
     container_name: react_front
     depends_on:
       - server
