@@ -45,7 +45,7 @@ wwwroot/
 *.Publish.xml
 
 # Entity Framework
-Migrations/
+# Migrations/
 
 ############################
 # Node / React / Vite
