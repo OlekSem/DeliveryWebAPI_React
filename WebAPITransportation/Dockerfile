@@ -2,11 +2,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /source
 
-# Copy solution and project files first (better caching)
+# Copy solution
 COPY WebAPITransportation.sln ./
-COPY WebAPITransportation/WebAPITransportation.csproj WebAPITransportation/
 
-RUN dotnet restore
+# Copy ALL project files (but not source code yet)
+COPY Core/*.csproj Core/
+COPY Domain/*.csproj Domain/
+COPY WebAPITransportation/*.csproj WebAPITransportation/
+
+# Restore dependencies
+RUN dotnet restore WebAPITransportation.sln
 
 # Copy the rest of the source
 COPY . .
