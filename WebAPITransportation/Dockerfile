@@ -2,16 +2,23 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /source
 
-COPY ["WebAPITransportation.csproj", "./"]
-RUN dotnet restore "WebAPITransportation.csproj"
+# Copy solution and project files first (better caching)
+COPY WebAPITransportation.sln ./
+COPY WebAPITransportation/WebAPITransportation.csproj WebAPITransportation/
 
+RUN dotnet restore
+
+# Copy the rest of the source
 COPY . .
+
+# Publish
+WORKDIR /source/WebAPITransportation
 RUN dotnet publish -c Release -o /app
 
 # ---------- Runtime ----------
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
-
 WORKDIR /app
+
 COPY --from=build /app .
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000
