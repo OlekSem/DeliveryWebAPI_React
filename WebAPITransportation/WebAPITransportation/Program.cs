@@ -135,6 +135,11 @@ builder.Services.AddCors(options =>
                 // Allow all http origins for localubuntu regardless of port
                 return origin.StartsWith("http://localubuntu");
             })
+            .SetIsOriginAllowed(origin =>
+            {
+                // Allow all http origins for localubuntu regardless of port
+                return origin.StartsWith("http://oleksem.itstep.click");
+            })
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
