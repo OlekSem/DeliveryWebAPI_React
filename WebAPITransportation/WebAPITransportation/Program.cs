@@ -121,26 +121,18 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
+                // Local development
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "http://localhost:4173",
-
+                
+                // Production URLs
                 "http://transportation-react.somee.com",
-                "http://www.transportation-react.somee.com",
+                "https://transportation-react.somee.com",
                 "http://transferweb.somee.com",
-                "http://www.transferweb.somee.com",
+                "https://transferweb.somee.com",
                 "https://oleksem.itstep.click"
             )
-            .SetIsOriginAllowed(origin =>
-            {
-                // Allow all http origins for localubuntu regardless of port
-                return origin.StartsWith("http://localubuntu");
-            })
-            .SetIsOriginAllowed(origin =>
-            {
-                // Allow all http origins for oleksem.itstep.click regardless of port
-                return origin.StartsWith("http://oleksem.itstep.click");
-            })
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
