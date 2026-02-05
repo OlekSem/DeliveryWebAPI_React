@@ -21,7 +21,8 @@ services:
       start_period: 5s
 
   server:
-    build: ./WebAPITransportation
+    #build: ./WebAPITransportation
+    image: semeniukoleksandr/transfer-api:latest
     container_name: server
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -41,10 +42,11 @@ services:
         condition: service_healthy
 
   front:
-    build: 
-      context: ./transportation-reactts
-      args:
-        VITE_API_BASE_URL: ${API_URL}
+    #build: 
+      #context: ./transportation-reactts
+    image: semeniukoleksandr/transfer-react:latest
+    environment:
+      VITE_API_BASE_URL: ${API_URL}
     container_name: react_front
     depends_on:
       - server
