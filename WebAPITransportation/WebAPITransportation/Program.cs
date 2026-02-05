@@ -128,7 +128,8 @@ builder.Services.AddCors(options =>
                 "http://transportation-react.somee.com",
                 "http://www.transportation-react.somee.com",
                 "http://transferweb.somee.com",
-                "http://www.transferweb.somee.com"
+                "http://www.transferweb.somee.com",
+                "https://oleksem.itstep.click"
             )
             .SetIsOriginAllowed(origin =>
             {
@@ -137,7 +138,7 @@ builder.Services.AddCors(options =>
             })
             .SetIsOriginAllowed(origin =>
             {
-                // Allow all http origins for localubuntu regardless of port
+                // Allow all http origins for oleksem.itstep.click regardless of port
                 return origin.StartsWith("http://oleksem.itstep.click");
             })
             .AllowAnyHeader()
