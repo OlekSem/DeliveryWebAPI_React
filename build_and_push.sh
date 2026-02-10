@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PLATFORMS="linux/amd64,linux/arm64"
+PLATFORMS="linux/amd64"
 
 echo "Building and pushing React client..."
 cd transportation-reactts
