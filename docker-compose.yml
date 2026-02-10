@@ -21,7 +21,6 @@ services:
       start_period: 5s
 
   server:
-    #build: ./WebAPITransportation
     image: semeniukoleksandr/transfer-api:latest
     container_name: server
     environment:
@@ -31,23 +30,18 @@ services:
         Database=${POSTGRES_DB};
         Username=${POSTGRES_USER};
         Password=${POSTGRES_PASSWORD}
-    volumes:
-      - /data/transfer/images:/app/images
-      - ./WebAPITransportation/wait-for-postgres.sh:/app/wait-for-postgres.sh
     ports:
       - "5898:5000"
-   
     depends_on:
       db:
         condition: service_healthy
+    # NO volume mapping for /app/images — images are baked in!
 
   front:
-    #build: 
-      #context: ./transportation-reactts
     image: semeniukoleksandr/transfer-react:latest
-    environment:
-      VITE_API_BASE_URL: ${API_URL}
     container_name: react_front
+    environment:
+      VITE_API_BASE_URL: ${API_URL:-https://api.oleksem.itstep.click}
     depends_on:
       - server
     ports:
