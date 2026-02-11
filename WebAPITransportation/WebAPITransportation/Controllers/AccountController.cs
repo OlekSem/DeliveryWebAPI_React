@@ -41,10 +41,14 @@ public class AccountController(
         {
             return Unauthorized("Invalid email or password.");
         }
-
-        if (model.Image.Length > 0)
+        
+        if (model.Image?.Length > 0)
         {
             user.Image = await imageService.UploadImageAsync(model.Image);
+        }
+        else
+        {
+            user.Image = "default_user.webp";
         }
 
         var result = await userManager.CreateAsync(user, model.Password);

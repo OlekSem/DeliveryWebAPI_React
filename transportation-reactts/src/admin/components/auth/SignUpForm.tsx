@@ -25,8 +25,7 @@ export default function SignUpForm() {
 
     const onFinish = async (e) => {
         e.preventDefault();
-        console.log('Sent:', email, " - ", password);
-        console.log(JSON.stringify({email, password}));
+
 
 
         const model: Register = {
@@ -42,6 +41,7 @@ export default function SignUpForm() {
             );
             const {token} = res.data;
             dispatch(loginSuccess(token));
+            console.log(JSON.stringify({email, password}));
             navigate("/profile");
         } catch (err) {
             console.error("Error:", err);
