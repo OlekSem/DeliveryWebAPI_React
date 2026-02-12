@@ -34,7 +34,7 @@ public class AccountController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register([FromForm] RegisterModel model)
+    public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
         var user = mapper.Map<UserEntity>(model);
         if (user.Email == string.Empty)

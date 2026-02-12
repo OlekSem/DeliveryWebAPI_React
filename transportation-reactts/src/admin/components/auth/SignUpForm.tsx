@@ -10,6 +10,7 @@ import type {LoginSuccess} from "../../../Interfaces/User/LoginSuccess.ts";
 import APP_ENV from "../../../env";
 import {loginSuccess} from "../../../services/authSlice.ts";
 import {useAppDispatch} from "../../../store";
+import {register} from "swiper/element";
 
 export default function SignUpForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +35,7 @@ export default function SignUpForm() {
             firstName,
             lastName
         };
+        console.log(JSON.stringify(model));
         try {
             const res = await axios.post<LoginSuccess>(
                 APP_ENV.API_BASE_URL + "/api/Account/register",
